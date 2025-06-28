@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:javettieri/models/lesson.dart';
+import 'package:javettieri/pages/lesson_screen.dart';
+import 'package:javettieri/pages/quiz_screen.dart';
 import 'package:javettieri/theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,6 +73,9 @@ Le classi rappresentano concetti, gli oggetti rappresentano istanze concrete.
     Lesson(title: 'Programmazione funzionale', content: ''),
     Lesson(title: 'Input e file', content: ''),
     Lesson(title: 'Thread e programmazione concorrente', content: ''),
+    Lesson(title: 'Interfacce e classi astratte', content: ''),
+    Lesson(title: 'Gestione delle eccezioni', content: ''),
+    Lesson(title: 'Collezioni avanzate (ArrayList, HashMap, Set', content: ''),
   ];
 
   @override
@@ -87,26 +92,45 @@ Le classi rappresentano concetti, gli oggetti rappresentano istanze concrete.
         itemCount: lessons.length,
         itemBuilder: (context, index) {
           final lesson = lessons[index];
-          return ListTile(
-            title: Text(lesson.title),
-            subtitle: Text(lesson.isRead ? 'Letta' : 'Da leggere'),
-            trailing: Icon(
-              lesson.isRead ? Icons.check_box : Icons.check_box_outline_blank,
-              color: lesson.isRead ? Colors.green : null,
-            ),
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LessonScreen(lesson: lesson),
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
                 ),
-              );
-              if (result != null) {
-                setState(() {
-                  lessons[index].isRead = result;
-                });
-              }
-            },
+              ],
+            ),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              title: Text(lesson.title, style: TextStyle(fontSize: 18)),
+              subtitle: Text(lesson.isRead ? 'Letta' : 'Da leggere'),
+              trailing: Icon(
+                lesson.isRead ? Icons.check_box : Icons.check_box_outline_blank,
+                color: lesson.isRead ? Colors.green : null,
+              ),
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LessonScreen(lesson: lesson),
+                  ),
+                );
+                if (result != null) {
+                  setState(() {
+                    lessons[index].isRead = result;
+                  });
+                }
+              },
+            ),
           );
         },
       ),
@@ -116,115 +140,6 @@ Le classi rappresentano concetti, gli oggetti rappresentano istanze concrete.
           context,
           MaterialPageRoute(builder: (context) => QuizScreen()),
         ),
-      ),
-    );
-  }
-}
-
-class LessonScreen extends StatefulWidget {
-  final Lesson lesson;
-
-  LessonScreen({required this.lesson});
-
-  @override
-  _LessonScreenState createState() => _LessonScreenState();
-}
-
-class _LessonScreenState extends State<LessonScreen> {
-  late bool isRead;
-
-  @override
-  void initState() {
-    super.initState();
-    isRead = widget.lesson.isRead;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.lesson.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.lesson.content),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Checkbox(
-                  value: isRead,
-                  onChanged: (val) {
-                    setState(() => isRead = val ?? false);
-                  },
-                ),
-                const Text('Segna come letta'),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, isRead),
-              child: const Text('Salva'),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class QuizScreen extends StatefulWidget {
-  @override
-  _QuizScreenState createState() => _QuizScreenState();
-}
-
-class _QuizScreenState extends State<QuizScreen> {
-  int questionIndex = 0;
-  int score = 0;
-  List<Map<String, Object>> questions = [
-    {
-      'question': 'Qual è il tipo di dato per i numeri interi?',
-      'options': ['String', 'int', 'double', 'boolean'],
-      'answer': 'int'
-    },
-    {
-      'question': 'Cosa stampa System.out.println("Hello");?',
-      'options': ['Hello', 'System.out.println', 'Errore', 'Console'],
-      'answer': 'Hello'
-    },
-  ];
-
-  void answerQuestion(String selected) {
-    final correct = questions[questionIndex]['answer'];
-    if (selected == correct) score++;
-    setState(() {
-      questionIndex++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Quiz Javettieri')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: questionIndex < questions.length
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(questions[questionIndex]['question'] as String,
-                      style: TextStyle(fontSize: 20)),
-                  ...(questions[questionIndex]['options'] as List<String>).map(
-                    (option) => ElevatedButton(
-                      onPressed: () => answerQuestion(option),
-                      child: Text(option),
-                    ),
-                  ),
-                ],
-              )
-            : Center(
-                child: Text('Quiz finito! Punteggio: $score',
-                    style: TextStyle(fontSize: 24)),
-              ),
       ),
     );
   }
